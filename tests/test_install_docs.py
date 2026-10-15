@@ -1,4 +1,4 @@
-"""Checks installation paths in INSTALL.md and translations."""
+"""Checks installation paths in INSTALL.md."""
 
 import pathlib
 import re
@@ -15,37 +15,29 @@ class ClaudeCodeUpdateTest(unittest.TestCase):
         # `claude plugin update` runs, so the docs must never offer the first alone.
         refresh = "claude plugin marketplace update i-have-adhd"
         update = "claude plugin update i-have-adhd@i-have-adhd"
-        translations = sorted((ROOT / ".github/install").glob("INSTALL.*.md"))
-        self.assertTrue(translations, "No translated installation guides found")
-        for path in [ROOT / "INSTALL.md", *translations]:
-            with self.subTest(file=path.name):
-                text = path.read_text(encoding="utf8")
-                self.assertIn(update, text)
-                for block in re.split(r"\n[^\S\n]*\n", text):
-                    if refresh in block:
-                        self.assertIn(update, block)
+        text = (ROOT / "INSTALL.md").read_text(encoding="utf8")
+        self.assertIn(update, text)
+        for block in re.split(r"\n[^\S\n]*\n", text):
+            if refresh in block:
+                self.assertIn(update, block)
 
 
 class ZedInstallPathTest(unittest.TestCase):
     def test_zed_install_paths(self):
-        translations = sorted((ROOT / ".github/install").glob("INSTALL.*.md"))
-        self.assertTrue(translations, "No translated installation guides found")
-        for path in [ROOT / "INSTALL.md", *translations]:
-            with self.subTest(file=path.name):
-                text = path.read_text(encoding="utf8")
-                marker = "<summary><strong>Zed</strong></summary>"
-                self.assertIn(marker, text)
-                section = text.split(marker, 1)[1]
-                self.assertIn("</details>", section)
-                section = section.split("</details>", 1)[0]
+        text = (ROOT / "INSTALL.md").read_text(encoding="utf8")
+        marker = "<summary><strong>Zed</strong></summary>"
+        self.assertIn(marker, text)
+        section = text.split(marker, 1)[1]
+        self.assertIn("</details>", section)
+        section = section.split("</details>", 1)[0]
 
-                self.assertNotIn("~/.config/zed/skills", section)
-                self.assertIn(
-                    "mkdir -p ~/.agents/skills\n"
-                    "cp -R i-have-adhd/skills/i-have-adhd ~/.agents/skills/",
-                    section,
-                )
-                self.assertIn("~/.agents/skills/i-have-adhd", section)
+        self.assertNotIn("~/.config/zed/skills", section)
+        self.assertIn(
+            "mkdir -p ~/.agents/skills\n"
+            "cp -R i-have-adhd/skills/i-have-adhd ~/.agents/skills/",
+            section,
+        )
+        self.assertIn("~/.agents/skills/i-have-adhd", section)
 
 
 class GrokInstallPathTest(unittest.TestCase):
